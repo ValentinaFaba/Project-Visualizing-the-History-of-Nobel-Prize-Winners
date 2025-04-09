@@ -1,0 +1,51 @@
+oading in required libraries
+import pandas as pd
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+nobel = pd.read_csv('data/nobel.csv')
+#What is the most commonly awarded gender and birth country?
+top_gender = nobel['sex'].value_counts().index[0]
+top_country = nobel['birth_country'].value_counts().index[0]
+print('\n The gender with the most Nobel laureates is :', top_gender)
+print(' The most common birth country of Nobel laureates is :' , top_country)
+##Which decade had the highest ratio of US-born Nobel Prize winners to total winners in all categories?
+#To calculate the ratio, first create a column that creates a flag for winners whose birth country is "United States of America"
+nobel['us_win'] = nobel['birth_country'] == 'United States of America'
+#Create the decade column
+nobel['decade'] = (np.floor(nobel['year'] / 10)*10).astype(int)
+#Finding the ratio
+ratio_dec_us = nobel.groupby('decade', as_index = False)['us_win'].mean()
+#Identify the decade with the highest ratio of US-born winners
+max_decade_usa = ratio_dec_us[ratio_dec_us['us_win'] == ratio_dec_us['us_win'].max()]['decade'].values[0]
+print(' Decade which had the highest ratio of US-born Nobel Prize winners:',max_decade_usa)
+#relational line plot
+g = sns.relplot(x = 'decade', y = 'us_win', data = nobel, kind = 'line', ci = None)
+g.fig.suptitle('US Nobel Prize winners per decade')
+g.set(xlabel="Decade", ylabel="US winners")
+plt.show()
+##Which decade and Nobel Prize category combination had the highest proportion of female laureates?
+print(nobel.info())
+nobel['fem'] = nobel['sex'] == 'Female'
+ratio_dec_fem = nobel.groupby(['decade', 'category'], as_index = False)['fem'].mean()
+max_ratio_dec_fem = ratio_dec_fem[ratio_dec_fem['fem'] == ratio_dec_fem['fem'].max()][['decade', 'category']]
+#Store this as a dictionary
+max_female_dict = {max_ratio_dec_fem['decade'].values[0]
+                   : max_ratio_dec_fem['category'].values[0]}
+print(max_female_dict)
+#Relational line plot with multiple categories
+g2 = sns.relplot(x = 'decade', y = 'fem', data = nobel, kind = 'line', hue = 'category', ci = None)
+g2.fig.suptitle('Decade and category with the proportion of female laureates', y = 1.05)
+g2.set(xlabel = 'Decade', ylabel = '% of female laureates ')
+plt.show()
+##Who was the first woman to receive a Nobel Prize, and in what category?
+nobel_fem = nobel[nobel['fem']]
+first_year_fem = nobel_fem[nobel_fem['year'] == nobel_fem['year'].min()]
+first_woman_name = first_year_fem['full_name'].values[0]
+first_woman_category = first_year_fem['category'].values[0]
+print('The first woman to win a nobel is ',first_woman_name, 'in the category:', first_woman_category)
+##Which individuals or organizations have won more than one Nobel Prize throughout the years?
+count = nobel['full_name'].value_counts()
+repeat = count[count >= 2].index
+repeat_list = list(repeat)
+print(repeat_list)
