@@ -25,7 +25,6 @@ g.fig.suptitle('US Nobel Prize winners per decade')
 g.set(xlabel="Decade", ylabel="US winners")
 plt.show()
 ##Which decade and Nobel Prize category combination had the highest proportion of female laureates?
-print(nobel.info())
 nobel['fem'] = nobel['sex'] == 'Female'
 ratio_dec_fem = nobel.groupby(['decade', 'category'], as_index = False)['fem'].mean()
 max_ratio_dec_fem = ratio_dec_fem[ratio_dec_fem['fem'] == ratio_dec_fem['fem'].max()][['decade', 'category']]
